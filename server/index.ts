@@ -2,6 +2,7 @@ import express from 'express'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { readdir, readFile } from 'fs/promises'
+import { execSync } from 'child_process'
 import { randomUUID } from 'crypto'
 import { readProjects, writeProjects } from './db'
 
@@ -54,6 +55,57 @@ app.patch('/api/projects/:id/lastOpened', (req, res) => {
   const now = new Date().toISOString()
   writeProjects(readProjects().map((p) => (p.id === req.params.id ? { ...p, lastOpened: now } : p)))
   res.json({ ok: true })
+})
+
+app.patch('/api/projects/:id', (req, res) => {
+  const { coverTheme, coverEmoji } = req.body as { coverTheme?: string; coverEmoji?: string }
+  writeProjects(
+    readProjects().map((p) =>
+      p.id === req.params.id
+        ? {
+            ...p,
+            ...(coverTheme !== undefined && { coverTheme }),
+            ...(coverEmoji !== undefined && { coverEmoji })
+          }
+        : p
+    )
+  )
+  res.json({ ok: true })
+})
+
+// ── Filesystem browsing ───────────────────────────────────────────────────────
+
+app.get('/api/fs/roots', (_req, res) => {
+  if (process.platform === 'win32') {
+    try {
+      const out = execSync('wmic logicaldisk get name', { encoding: 'utf-8' })
+      const drives = out
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((l) => /^[A-Z]:$/.test(l))
+        .map((l) => l + '\\')
+      return res.json(drives.length ? drives : ['C:\\'])
+    } catch {
+      return res.json(['C:\\', 'D:\\'])
+    }
+  }
+  res.json(['/'])
+})
+
+app.get('/api/fs/browse', async (req, res) => {
+  const absPath = req.query.path as string
+  if (!absPath) return res.status(400).json({ error: 'path required' })
+  try {
+    const entries = await readdir(absPath, { withFileTypes: true })
+    res.json(
+      entries
+        .filter((e) => e.isDirectory())
+        .map((e) => ({ name: e.name, path: join(absPath, e.name) }))
+        .sort((a, b) => a.name.localeCompare(b.name))
+    )
+  } catch {
+    res.status(404).json({ error: 'Cannot read directory' })
+  }
 })
 
 // ── Filesystem ────────────────────────────────────────────────────────────────

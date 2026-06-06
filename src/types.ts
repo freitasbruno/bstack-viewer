@@ -3,6 +3,8 @@ export interface Project {
   name: string
   rootPath: string
   lastOpened: string | null
+  coverTheme?: string
+  coverEmoji?: string
 }
 
 export interface DirEntry {

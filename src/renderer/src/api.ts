@@ -24,6 +24,25 @@ export async function setLastOpened(id: string): Promise<void> {
   await fetch(`/api/projects/${id}/lastOpened`, { method: 'PATCH' })
 }
 
+export async function updateProject(id: string, patch: { coverTheme?: string; coverEmoji?: string }): Promise<void> {
+  await fetch(`/api/projects/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch)
+  })
+}
+
+export async function getRoots(): Promise<string[]> {
+  const r = await fetch('/api/fs/roots')
+  return r.json()
+}
+
+export async function browseDir(absPath: string): Promise<{ name: string; path: string }[]> {
+  const r = await fetch(`/api/fs/browse?path=${encodeURIComponent(absPath)}`)
+  if (!r.ok) return []
+  return r.json()
+}
+
 export async function readDir(absPath: string): Promise<DirEntry[]> {
   const r = await fetch(`/api/fs/dir?path=${encodeURIComponent(absPath)}`)
   if (!r.ok) return []
