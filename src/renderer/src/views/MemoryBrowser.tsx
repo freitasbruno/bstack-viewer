@@ -126,6 +126,7 @@ export default function MemoryBrowser(): JSX.Element {
       />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
+          projectName={project.name}
           memoryRoot={memoryRoot}
           activeKey={activeKey}
           expandedDirs={expandedDirs}
