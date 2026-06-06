@@ -88,6 +88,21 @@ body::before {
   }
 }
 
+/* ── Mermaid diagrams ──────────────────────────────────────────────────────── */
+.mermaid-diagram {
+  margin: 16px 0;
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+  text-align: center;
+}
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
 /* ── Markdown body ─────────────────────────────────────────────────────────── */
 .md-body {
   max-width: 760px;

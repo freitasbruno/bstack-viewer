@@ -1,7 +1,7 @@
 export interface Module {
   name: string
+  type: 'markdown' | 'mockup'
   canHandle(fileName: string, relPath: string): boolean
-  render(content: string, relPath: string): string
 }
 
 const registry: Module[] = []
@@ -17,21 +17,20 @@ export const ModuleRegistry = {
 
 export const MarkdownModule: Module = {
   name: 'Markdown',
+  type: 'markdown',
   canHandle: (_fileName, relPath) => relPath.endsWith('.md'),
-  render: (content) => content
 }
 
-// Phase 2 stubs — fall back to markdown
 export const SchemaModule: Module = {
   name: 'Schema',
+  type: 'markdown',
   canHandle: (_fileName, relPath) => relPath.startsWith('schema/') && relPath.endsWith('.md'),
-  render: (content) => content
 }
 
 export const MockupModule: Module = {
   name: 'Mockup',
-  canHandle: (_fileName, relPath) => relPath.startsWith('mockups/'),
-  render: (content) => content
+  type: 'mockup',
+  canHandle: (fileName) => fileName.endsWith('.html'),
 }
 
 ModuleRegistry.register(MockupModule)
