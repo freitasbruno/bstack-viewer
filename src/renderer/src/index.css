@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+@theme {
+  --color-accent: #f43f5e;
+  --color-accent-light: #fff1f2;
+  --color-canvas: #f5f0e8;
+  --color-surface: #fdfaf4;
+  --color-divider: #e3d9c8;
+  --color-ink: #1e293b;
+  --color-muted: #7c7264;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* CSS custom property aliases for components that use var() directly */
+:root {
+  --accent: #f43f5e;
+  --accent-light: #fff1f2;
+  --bg: #f5f0e8;
+  --card-bg: #fdfaf4;
+  --border: #e3d9c8;
+  --text: #1e293b;
+  --muted: #7c7264;
+  --sidebar-w: 252px;
+  --header-h: 50px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Drag region — AppHeader is the title bar */
+.app-header { -webkit-app-region: drag; }
+.app-header button,
+.app-header [data-nodrag] { -webkit-app-region: no-drag; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Paper grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 300px 300px;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Markdown body ─────────────────────────────────────────────────────────── */
+.md-body {
+  max-width: 760px;
+}
+.md-body h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.md-body h2 {
+  font-size: 15px; font-weight: 600; margin: 28px 0 10px;
+  padding-bottom: 7px; border-bottom: 1px solid var(--border);
+}
+.md-body h3 { font-size: 13.5px; font-weight: 600; margin: 18px 0 8px; }
+.md-body h4 { font-size: 13px; font-weight: 600; margin: 14px 0 6px; color: var(--muted); }
+.md-body h5, .md-body h6 { font-size: 12.5px; font-weight: 600; margin: 12px 0 6px; color: var(--muted); }
+.md-body p { font-size: 13.5px; line-height: 1.75; margin-bottom: 12px; }
+.md-body blockquote {
+  border-left: 3px solid var(--accent); padding: 8px 14px;
+  background: var(--card-bg); border-radius: 0 6px 6px 0;
+  margin: 10px 0 16px; font-size: 13px; color: var(--muted);
+}
+.md-body hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+.md-body ul, .md-body ol { padding-left: 22px; margin-bottom: 12px; font-size: 13.5px; line-height: 1.8; }
+.md-body li { margin-bottom: 3px; }
+.md-body li > ul, .md-body li > ol { margin-top: 4px; margin-bottom: 0; }
+.md-body input[type="checkbox"] { margin-right: 6px; accent-color: var(--accent); }
+
+.md-body table {
+  width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0;
+  background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border);
+}
+.md-body thead { background: #ddd4bf; }
+.md-body th {
+  padding: 9px 13px; font-weight: 700; text-align: left;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em;
+  color: #5a4f3e; border-bottom: 1px solid var(--border);
+}
+.md-body td { padding: 9px 13px; border-bottom: 1px solid var(--border); }
+.md-body tr:last-child td { border-bottom: none; }
+.md-body tr:hover td { background: #faf7f0; }
+
+.md-body code {
+  font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 5px; color: var(--accent);
+}
+.md-body pre {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 14px 0;
+}
+.md-body pre code {
+  background: none; border: none; padding: 0;
+  color: var(--text); font-size: 12px; line-height: 1.6;
+}
+.md-body a.md-link {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid var(--accent-light); transition: border-color 0.1s;
+}
+.md-body a.md-link:hover { border-color: var(--accent); }
+.md-body a.md-ext { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }

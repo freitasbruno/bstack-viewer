@@ -1,0 +1,14 @@
+node_modules
+out
+dist
+.DS_Store
+*.local
+
+# TypeScript build artifacts
+src/**/*.d.ts
+!src/renderer/src/env.d.ts
+src/**/*.tsbuildinfo
+*.tsbuildinfo
+src/**/*.js
+src/**/*.jsx
+!src/**/*.config.js
