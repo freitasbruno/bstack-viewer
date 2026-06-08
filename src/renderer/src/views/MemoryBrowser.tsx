@@ -16,7 +16,7 @@ type ContentState =
   | { type: 'empty' }
   | { type: 'loading' }
   | { type: 'markdown'; content: string; moduleName: string }
-  | { type: 'mockup'; html: string; moduleName: string }
+  | { type: 'mockup'; absPath: string; moduleName: string }
   | { type: 'dir'; entries: DirEntry[]; name: string }
   | { type: 'error'; message: string }
 
@@ -63,10 +63,10 @@ export default function MemoryBrowser(): JSX.Element {
           const fileName = path[path.length - 1] ?? ''
           const relPath = path.join('/')
           const mod = ModuleRegistry.dispatch(fileName, relPath)
-          const text = await readFile(absPath)
           if (mod.type === 'mockup') {
-            setContent({ type: 'mockup', html: text, moduleName: mod.name })
+            setContent({ type: 'mockup', absPath, moduleName: mod.name })
           } else {
+            const text = await readFile(absPath)
             setContent({ type: 'markdown', content: text, moduleName: mod.name })
           }
         }
@@ -134,8 +134,11 @@ export default function MemoryBrowser(): JSX.Element {
           onNavigate={navigate}
         />
         <main
-          className="flex-1 overflow-y-auto"
-          style={{ padding: '32px 44px', background: 'var(--bg)' }}
+          className="flex-1 overflow-hidden flex flex-col"
+          style={{
+            background: 'var(--bg)',
+            ...(content.type !== 'mockup' && { padding: '32px 44px', overflowY: 'auto' as const })
+          }}
         >
           {content.type === 'empty' && (
             <div className="flex flex-col items-center justify-center h-full gap-3.5 text-center">
@@ -156,12 +159,12 @@ export default function MemoryBrowser(): JSX.Element {
 
           {(content.type === 'markdown' || content.type === 'mockup' || content.type === 'dir' || content.type === 'error') && (
             <>
-              <BreadcrumbBar parts={currentPath} />
+              {content.type !== 'mockup' && <BreadcrumbBar parts={currentPath} />}
               {content.type === 'markdown' && (
                 <MarkdownView content={content.content} onNavigate={handleRelNav} />
               )}
               {content.type === 'mockup' && (
-                <MockupView html={content.html} />
+                <MockupView absPath={content.absPath} path={currentPath} />
               )}
               {content.type === 'dir' && (
                 <DirListing

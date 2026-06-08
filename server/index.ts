@@ -1,5 +1,5 @@
 import express from 'express'
-import { join } from 'path'
+import { join, dirname } from 'path'
 import { existsSync } from 'fs'
 import { readdir, readFile } from 'fs/promises'
 import { execSync } from 'child_process'
@@ -106,6 +106,79 @@ app.get('/api/fs/browse', async (req, res) => {
   } catch {
     res.status(404).json({ error: 'Cannot read directory' })
   }
+})
+
+// ── Mockup preview (serves HTML file with base-tag injection + asset proxy) ───
+
+const MIME: Record<string, string> = {
+  css: 'text/css', js: 'application/javascript',
+  png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+  gif: 'image/gif', svg: 'image/svg+xml', webp: 'image/webp',
+  woff: 'font/woff', woff2: 'font/woff2', ttf: 'font/ttf',
+  ico: 'image/x-icon', json: 'application/json', html: 'text/html'
+}
+
+async function serveFile(filePath: string, res: express.Response): Promise<void> {
+  const ext = filePath.split('.').pop()?.toLowerCase() ?? ''
+  const data = await readFile(filePath)
+  res.setHeader('Content-Type', MIME[ext] ?? 'application/octet-stream')
+  res.send(data)
+}
+
+app.get('/api/fs/preview', async (req, res) => {
+  const filePath = req.query.path as string
+  if (!filePath) return res.status(400).send('path required')
+  try {
+    let content = await readFile(filePath, 'utf-8')
+
+    // Detect project root (parent of .claude/)
+    const normalized = filePath.replace(/\\/g, '/')
+    const dotClaudeIdx = normalized.indexOf('/.claude/')
+    const projectRoot = dotClaudeIdx > 0 ? filePath.slice(0, dotClaudeIdx) : dirname(filePath)
+    const encodedRoot = Buffer.from(projectRoot).toString('base64url')
+
+    // Virtual serving path: strip .claude/memory/ so mockups authored with ../public/
+    // correctly reach <projectRoot>/public/ rather than <projectRoot>/.claude/memory/public/
+    const relDir = normalized
+      .slice(dotClaudeIdx + 1, normalized.lastIndexOf('/'))
+      .replace(/^\.claude\/memory\//, '')
+
+    // Rewrite absolute paths (/foo) first — before injecting base tag to avoid double-rewriting
+    content = content.replace(
+      /((?:src|href|action)=["'])\/(?![/]|http|data:)/gi,
+      `$1/api/fs/preview-root/${encodedRoot}/`
+    )
+
+    // Base href: <projectRoot>/<relDir>/ so ../public/ reaches <projectRoot>/public/
+    const baseHref = `/api/fs/preview-root/${encodedRoot}/${relDir}/`
+    content = content.replace(/(<head[^>]*>)/i, `$1<base href="${baseHref}">`)
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.send(content)
+  } catch {
+    res.status(404).send('File not found')
+  }
+})
+
+// Serves all mockup assets — relPath is resolved from the project root.
+// Fallback: also tries <root>/.claude/memory/<relPath> so same-directory files
+// (CSS, JS) still resolve even though base href is shifted up to project root level.
+app.get('/api/fs/preview-root/:encodedRoot/:relPath(*)', async (req, res) => {
+  const root = Buffer.from(req.params.encodedRoot, 'base64url').toString()
+  const relPath = req.params.relPath
+  const candidates = [
+    join(root, relPath),
+    join(root, '.claude', 'memory', relPath)
+  ]
+  for (const candidate of candidates) {
+    try {
+      await serveFile(candidate, res)
+      return
+    } catch {
+      // try next candidate
+    }
+  }
+  res.status(404).send('Asset not found')
 })
 
 // ── Filesystem ────────────────────────────────────────────────────────────────
