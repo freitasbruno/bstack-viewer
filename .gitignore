@@ -7,8 +7,6 @@ dist
 # TypeScript build artifacts
 src/**/*.d.ts
 !src/renderer/src/env.d.ts
-src/**/*.tsbuildinfo
-*.tsbuildinfo
 src/**/*.js
 src/**/*.jsx
-!src/**/*.config.js
+*.tsbuildinfo
