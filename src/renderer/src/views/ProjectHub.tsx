@@ -294,7 +294,7 @@ export default function ProjectHub(): JSX.Element {
                 gap: 16
               }}
             >
-              {projects.map((p) => (
+              {[...projects].sort((a, b) => a.name.localeCompare(b.name)).map((p) => (
                 <ProjectCard
                   key={p.id}
                   project={p}

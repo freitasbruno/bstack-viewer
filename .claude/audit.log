@@ -1,0 +1,8 @@
+2026-06-06 00:13 | plan | scaffold | START
+2026-06-06 00:29 | plan | scaffold+markdown-renderer+memory-browser+project-hub | END
+2026-06-06 00:30 | build | scaffold | START
+2026-06-06 01:08 | build | scaffold+markdown-renderer+memory-browser+project-hub | END
+2026-06-06 01:08 | review | scaffold+markdown-renderer+memory-browser+project-hub | START
+2026-06-06 01:12 | review | scaffold+markdown-renderer+memory-browser+project-hub | END
+2026-06-10 00:30 | plan | mermaid-viewer+mockup-viewer | START
+2026-06-10 00:35 | plan | mermaid-viewer+mockup-viewer | CLOSED (already built, no wip needed)
