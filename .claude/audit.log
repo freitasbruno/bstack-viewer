@@ -6,3 +6,5 @@
 2026-06-06 01:12 | review | scaffold+markdown-renderer+memory-browser+project-hub | END
 2026-06-10 00:30 | plan | mermaid-viewer+mockup-viewer | START
 2026-06-10 00:35 | plan | mermaid-viewer+mockup-viewer | CLOSED (already built, no wip needed)
+2026-06-10 10:00 | ship | harness+sort-projects | START
+2026-06-10 10:01 | ship | harness+sort-projects | END
